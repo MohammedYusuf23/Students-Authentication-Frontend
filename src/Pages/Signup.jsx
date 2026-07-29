@@ -13,10 +13,10 @@ import {
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { signupSchema } from '../validation/signupSchema';
+import { signupSchema } from '../Validation/SignupSchema';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import API from '../api/axios';
+import API from '../api/axios.js';
 
 export default function Signup() {
   const navigate = useNavigate();
