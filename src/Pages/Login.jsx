@@ -36,13 +36,12 @@ export default function Login() {
     try {
       setLoading(true);
 
-      const res = await API.post('/auth/login', data);
+      const res = await API.post('/api/auth/login', data);
 
-      // Store student information
-      localStorage.setItem('student', JSON.stringify(res.data.student));
+      localStorage.setItem('registerNumber', res.data.student.registerNumber);
 
       setSeverity('success');
-      setMessage(res.data.message || 'Login Successful');
+      setMessage(res.data.message);
       setOpen(true);
 
       setTimeout(() => {

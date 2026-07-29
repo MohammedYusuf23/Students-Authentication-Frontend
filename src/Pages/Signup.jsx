@@ -38,7 +38,7 @@ export default function Signup() {
     try {
       setLoading(true);
 
-      await API.post('/auth/signup', data);
+      await API.post('/api/auth/signup', data);
 
       setSeverity('success');
       setMessage('Registration Successful');

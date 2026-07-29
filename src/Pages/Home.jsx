@@ -35,6 +35,8 @@ const SECTION_THEME = {
   notify: { color: '#E11D48', bg: '#FFEEF1', icon: NotificationsActiveIcon },
 };
 
+import API from '../api/axios';
+
 function SectionCard({ theme, title, children }) {
   const Icon = theme.icon;
   return (
@@ -115,20 +117,32 @@ export default function Home() {
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const data = localStorage.getItem('student');
+ useEffect(() => {
+   const fetchStudent = async () => {
+     try {
+       const registerNumber = localStorage.getItem('registerNumber');
 
-    if (!data) {
-      navigate('/login');
-      return;
-    }
+       if (!registerNumber) {
+         navigate('/login');
+         return;
+       }
 
-    setStudent(JSON.parse(data));
-    setLoading(false);
-  }, [navigate]);
+       const response = await API.get(`/api/auth/profile/${registerNumber}`);
 
+       setStudent(response.data.student);
+     } catch (err) {
+       console.error(err);
+       navigate('/login');
+     } finally {
+       setLoading(false);
+     }
+   };
+
+   fetchStudent();
+ }, [navigate]);
+  
   const logout = () => {
-    localStorage.removeItem('student');
+    localStorage.removeItem('registerNumber');
     navigate('/login');
   };
 
