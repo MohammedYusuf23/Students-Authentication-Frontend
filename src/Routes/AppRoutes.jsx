@@ -2,7 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 import Signup from '../Pages/Signup';
 import Login from '../Pages/Login';
-import Home from '../Pages/Home';
+import New from '../Pages/New';
+// import FakeHome from '../Pages/FakeHome'
 
 export default function AppRoutes() {
   return (
@@ -13,7 +14,8 @@ export default function AppRoutes() {
 
       <Route path="/login" element={<Login />} />
 
-      <Route path="/home" element={<Home />} />
+      <Route path="/home" element={<New />} />
+      {/* <Route path="/newhome" element={<FakeHome />} /> */}
     </Routes>
   );
 }
