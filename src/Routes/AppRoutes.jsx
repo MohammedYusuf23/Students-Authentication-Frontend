@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Signup from '../Pages/Signup';
 import Login from '../Pages/Login';
 import Home from '../Pages/Home';
+import ErrorPage from '../Pages/ErrorPage';
 
 export default function AppRoutes() {
   return (
@@ -14,6 +15,8 @@ export default function AppRoutes() {
       <Route path="/login" element={<Login />} />
 
       <Route path="/home" element={<Home />} />
+
+      <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
 }

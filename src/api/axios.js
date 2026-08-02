@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://students-authentication-backend.onrender.com',
+  baseURL: 'http://localhost:5000/',
+  withCredentials: true,
 });
 
 export default API;

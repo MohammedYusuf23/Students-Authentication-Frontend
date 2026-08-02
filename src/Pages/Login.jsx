@@ -36,9 +36,7 @@ export default function Login() {
     try {
       setLoading(true);
 
-      const res = await API.post('/api/auth/login', data);
-
-      localStorage.setItem('registerNumber', res.data.student.registerNumber);
+      const res = await API.post('/login', data);
 
       setSeverity('success');
       setMessage(res.data.message);
@@ -58,6 +56,33 @@ export default function Login() {
     }
   };
 
+  const textFieldSx = {
+    '& .MuiOutlinedInput-root': {
+      background: '#ffffff',
+      borderRadius: 2,
+      transition: 'all 0.25s ease',
+      '& fieldset': {
+        borderColor: '#e5e7eb',
+      },
+      '&:hover fieldset': {
+        borderColor: '#a5b4fc',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#4f46e5',
+        borderWidth: '2px',
+      },
+    },
+    '& .MuiInputLabel-root': {
+      color: '#6b7280',
+    },
+    '& .MuiInputLabel-root.Mui-focused': {
+      color: '#4f46e5',
+    },
+    '& .MuiFormHelperText-root': {
+      marginLeft: 0,
+    },
+  };
+
   return (
     <Box
       sx={{
@@ -65,18 +90,29 @@ export default function Login() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        bgcolor: '#f5f5f5',
+        bgcolor: '#f0f2f5',
+        px: 2,
+        py: 4,
       }}
     >
       <Card
         sx={{
-          width: 420,
+          width: { xs: '100%', sm: 460 },
           p: 2,
           borderRadius: 3,
+          background: '#ffffff',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.06)',
+          border: '1px solid #e5e7eb',
         }}
       >
         <CardContent>
-          <Typography variant="h4" align="center" fontWeight="bold" mb={3}>
+          <Typography
+            variant="h4"
+            align="center"
+            fontWeight="bold"
+            mb={3}
+            sx={{ color: '#111827' }}
+          >
             Student Login
           </Typography>
 
@@ -88,6 +124,7 @@ export default function Login() {
               {...register('registerNumber')}
               error={!!errors.registerNumber}
               helperText={errors.registerNumber?.message}
+              sx={textFieldSx}
             />
 
             <TextField
@@ -98,6 +135,7 @@ export default function Login() {
               {...register('password')}
               error={!!errors.password}
               helperText={errors.password?.message}
+              sx={textFieldSx}
             />
 
             <Button
@@ -105,15 +143,33 @@ export default function Login() {
               type="submit"
               variant="contained"
               size="large"
-              sx={{ mt: 3 }}
               disabled={loading}
+              sx={{
+                mt: 3,
+                py: 1.2,
+                borderRadius: 2,
+                fontWeight: 700,
+                bgcolor: '#4f46e5',
+                '&:hover': {
+                  bgcolor: '#4338ca',
+                },
+              }}
             >
               {loading ? 'Logging In...' : 'Login'}
             </Button>
 
-            <Typography align="center" mt={2}>
+            <Typography align="center" sx={{ color: '#6b7280',mt:2 }}>
               Don't have an account?{' '}
-              <Link component="button" onClick={() => navigate('/signup')}>
+              <Link
+                component="button"
+                onClick={() => navigate('/signup')}
+                sx={{
+                  color: '#4f46e5',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  '&:hover': { textDecoration: 'underline' },
+                }}
+              >
                 Signup
               </Link>
             </Typography>
@@ -126,7 +182,11 @@ export default function Login() {
         autoHideDuration={3000}
         onClose={() => setOpen(false)}
       >
-        <Alert severity={severity} onClose={() => setOpen(false)}>
+        <Alert
+          severity={severity}
+          onClose={() => setOpen(false)}
+          sx={{ width: '100%' }}
+        >
           {message}
         </Alert>
       </Snackbar>

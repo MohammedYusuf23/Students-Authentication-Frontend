@@ -8,12 +8,12 @@ import {
   Chip,
   CircularProgress,
   Container,
-  Grid,
+  // Grid,
   Stack,
   Toolbar,
   Typography,
 } from '@mui/material';
-
+import Masonry from '@mui/lab/Masonry';
 import SchoolIcon from '@mui/icons-material/School';
 import PersonIcon from '@mui/icons-material/Person';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
@@ -25,8 +25,6 @@ import LogoutIcon from '@mui/icons-material/Logout';
 
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-
-// ---- Backend API client (Axios instance) ----
 import API from '../api/axios';
 
 const SECTION_THEME = {
@@ -50,7 +48,7 @@ const SECTION_THEME = {
     bg: '#FFF6E8',
     icon: MenuBookIcon,
   },
-  stats: {
+  emergency: {
     color: '#16A34A',
     bg: '#EEFBF1',
     icon: BarChartIcon,
@@ -59,6 +57,11 @@ const SECTION_THEME = {
     color: '#E11D48',
     bg: '#FFEEF1',
     icon: NotificationsActiveIcon,
+  },
+  stats: {
+    color: '#16A34A',
+    bg: '#EEFBF1',
+    icon: BarChartIcon,
   },
 };
 
@@ -69,20 +72,20 @@ function SectionCard({ theme, title, children }) {
     <Card
       elevation={0}
       sx={{
-        height: '100%',
+        height: 'fit-content',
         borderRadius: 3,
-        border: '1px solid rgba(15,23,42,0.08)',
-        transition: '0.2s',
+        border: '1px solid rgba(15,23,42,.08)',
+        transition: '.2s',
         '&:hover': {
           transform: 'translateY(-4px)',
-          boxShadow: '0 12px 24px rgba(15,23,42,0.08)',
+          boxShadow: '0 12px 24px rgba(15,23,42,.08)',
         },
       }}
     >
       <Box
         sx={{
           height: 4,
-          background: `linear-gradient(90deg, ${theme.color}, ${theme.color}99)`,
+          background: `linear-gradient(90deg,${theme.color},${theme.color}99)`,
         }}
       />
 
@@ -120,24 +123,21 @@ function SectionCard({ theme, title, children }) {
   );
 }
 
-/* ---------- InfoRow (label : value layout) ---------- */
-
 function InfoRow({ label, value }) {
   return (
     <Box
       sx={{
-        py: 1.3,
-        borderBottom: '1px solid rgba(15,23,42,0.06)',
+        py: 2,
+        borderBottom: '1px solid rgba(15,23,42,.06)',
         '&:last-child': {
           borderBottom: 'none',
         },
       }}
     >
-      <Stack direction="row" alignItems="center">
-        {/* Label */}
+      <Stack direction="row">
         <Typography
           sx={{
-            width: 130,
+            width: 140,
             color: '#64748B',
             fontWeight: 600,
             fontSize: 14,
@@ -146,30 +146,26 @@ function InfoRow({ label, value }) {
           {label}
         </Typography>
 
-        {/* Colon */}
         <Typography
           sx={{
             width: 20,
             textAlign: 'center',
             color: '#94A3B8',
-            fontWeight: 600,
-            fontSize: 14,
           }}
         >
           :
         </Typography>
 
-        {/* Value */}
         <Typography
           sx={{
             flex: 1,
-            color: '#0F172A',
             fontWeight: 600,
+            color: '#0F172A',
             fontSize: 14,
             wordBreak: 'break-word',
           }}
         >
-          {value}
+          {value || '-'}
         </Typography>
       </Stack>
     </Box>
@@ -185,18 +181,10 @@ export default function Home() {
   useEffect(() => {
     const fetchStudent = async () => {
       try {
-        const registerNumber = localStorage.getItem('registerNumber');
-
-        if (!registerNumber) {
-          navigate('/login');
-          return;
-        }
-
-        const response = await API.get(`/api/auth/profile/${registerNumber}`);
-
+        const response = await API.get('/profile');
         setStudent(response.data.student);
       } catch (err) {
-        console.error(err);
+        console.log(err);
         navigate('/login');
       } finally {
         setLoading(false);
@@ -206,8 +194,8 @@ export default function Home() {
     fetchStudent();
   }, [navigate]);
 
-  const logout = () => {
-    localStorage.removeItem('registerNumber');
+  const logout = async () => {
+    await API.post('/logout');
     navigate('/login');
   };
 
@@ -306,16 +294,16 @@ export default function Home() {
                 border: '3px solid rgba(255,255,255,.4)',
               }}
             >
-              {student.name.charAt(0).toUpperCase()}
+              {student.fullName?.charAt(0)?.toUpperCase() || 'S'}
             </Avatar>
 
             <Box sx={{ flexGrow: 1 }}>
               <Typography variant="h4" fontWeight={700}>
-                {student.name}
+                {student.fullName}
               </Typography>
 
               <Typography sx={{ opacity: 0.9, mb: 1 }}>
-                {student.department}
+                {student.course} • {student.department}
               </Typography>
 
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
@@ -328,7 +316,7 @@ export default function Home() {
                 />
 
                 <Chip
-                  label="Semester 6"
+                  label={`Semester ${student.semester}`}
                   sx={{
                     bgcolor: 'rgba(255,255,255,.2)',
                     color: '#fff',
@@ -336,7 +324,7 @@ export default function Home() {
                 />
 
                 <Chip
-                  label="Placement Eligible"
+                  label={`Year ${student.year}`}
                   sx={{
                     bgcolor: 'rgba(255,255,255,.2)',
                     color: '#fff',
@@ -347,84 +335,129 @@ export default function Home() {
           </CardContent>
         </Card>
 
-        {/* Cards */}
-        <Grid container spacing={3}>
-          {/* Personal */}
-          <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+        <Masonry
+          columns={{
+            xs: 1,
+            sm: 2,
+            lg: 3,
+          }}
+          spacing={3}
+        >
+          {/* Personal Details */}
+          <SectionCard theme={SECTION_THEME.personal} title="Personal Details">
+            <InfoRow label="Full Name" value={student.fullName} />
+            <InfoRow label="Gender" value={student.gender} />
+            <InfoRow label="Date of Birth" value={student.dob?.split('T')[0]} />
+            <InfoRow label="Email" value={student.email} />
+            <InfoRow label="Phone" value={student.phone} />
+            <InfoRow label="Aadhaar" value={student.aadhaar} />
+            <InfoRow label="PAN" value={student.pannumber} />
+            <InfoRow label="Blood Group" value={student.bloodGroup} />
+          </SectionCard>
+          {/* Family Information */}
+          <SectionCard theme={SECTION_THEME.family} title="Family Details">
+            <InfoRow label="Father" value={student.fatherName} />
+            <InfoRow label="Occupation" value={student.fatherOccupation} />
+            <InfoRow label="Phone" value={student.fatherPhone} />
+
+            <InfoRow label="Mother" value={student.motherName} />
+            <InfoRow label="Occupation" value={student.motherOccupation} />
+            <InfoRow label="Phone" value={student.motherPhone} />
+
+            <InfoRow label="Guardian" value={student.guardianName} />
+            <InfoRow
+              label="Relationship"
+              value={student.guardianRelationship}
+            />
+            <InfoRow label="Guardian Phone" value={student.guardianPhone} />
+
+            <InfoRow label="Family Income" value={student.familyIncome} />
+
             <SectionCard
-              theme={SECTION_THEME.personal}
-              title="Personal Details"
+              theme={SECTION_THEME.emergency}
+              title="Emergency Contact"
             >
-              <InfoRow label="Name" value={student.name} />
-              <InfoRow label="Age" value={student.age} />
-              <InfoRow label="DOB" value={student.dob} />
-              <InfoRow label="Email" value={student.email} />
-              <InfoRow label="Phone" value={student.phone} />
-            </SectionCard>
-          </Grid>
+              <InfoRow label="Contact Name" value={student.emergencyName} />
 
-          {/* Family */}
-          <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-            <SectionCard theme={SECTION_THEME.family} title="Family Details">
-              <InfoRow label="Father" value={student.fatherName} />
-              <InfoRow label="Mother" value={student.motherName} />
-              <InfoRow label="Department" value={student.department} />
-              <InfoRow label="Register No" value={student.registerNumber} />
-            </SectionCard>
-          </Grid>
+              <InfoRow label="Relationship" value={student.relationship} />
 
-          {/* Address */}
-          <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-            <SectionCard theme={SECTION_THEME.address} title="Address">
-              <Typography
-                sx={{
-                  color: '#334155',
-                  lineHeight: 1.8,
-                }}
-              >
-                {student.address}
+              <InfoRow label="Phone" value={student.emergencyPhone} />
+            </SectionCard>
+          </SectionCard>
+          {/* Academics Details */}
+          <SectionCard
+            theme={SECTION_THEME.academic}
+            title="Academic Information"
+          >
+            <InfoRow label="Register No" value={student.registerNumber} />
+
+            <InfoRow label="Department" value={student.department} />
+
+            <InfoRow label="Course" value={student.course} />
+
+            <InfoRow label="Year" value={student.year} />
+
+            <InfoRow label="Semester" value={student.semester} />
+
+            <InfoRow label="Qualification" value={student.qualification} />
+
+            <InfoRow label="School / College" value={student.schoolName} />
+
+            <InfoRow label="Board / University" value={student.board} />
+
+            <InfoRow label="Marks" value={student.marks} />
+
+            <InfoRow
+              label="Admission Date"
+              value={student.admissionDate?.split('T')[0]}
+            />
+
+            <InfoRow label="Attendance" value="92%" />
+
+            <InfoRow label="Semester" value="6" />
+
+            <InfoRow label="CGPA" value="8.75" />
+
+            <InfoRow label="Credits" value="98" />
+          </SectionCard>
+          {/* Address Details */}
+          <SectionCard theme={SECTION_THEME.address} title="Permanent Address">
+            <InfoRow label="Plot" value={student.permanentPlot} />
+
+            <InfoRow label="Street" value={student.permanentStreet} />
+
+            <InfoRow label="Area" value={student.permanentArea} />
+
+            <InfoRow label="District" value={student.permanentdistrict} />
+
+            <InfoRow label="State" value={student.permanentState} />
+
+            <InfoRow label="Pincode" value={student.permanentPincode} />
+          </SectionCard>
+          {/* Statistics Details */}
+          <SectionCard theme={SECTION_THEME.stats} title="Statistics">
+            <InfoRow label="Subjects" value="8" />
+            <InfoRow label="Assignments" value="14" />
+            <InfoRow label="Projects" value="4" />
+            <InfoRow label="Placement" value="Eligible" />
+          </SectionCard>
+          {/* Notification Details */}
+          <SectionCard theme={SECTION_THEME.notify} title="Notifications">
+            <Stack spacing={2}>
+              <Typography>• Welcome to the Student Dashboard.</Typography>
+
+              <Typography>• Keep your personal information updated.</Typography>
+
+              <Typography>
+                • Verify your academic details before each semester.
               </Typography>
-            </SectionCard>
-          </Grid>
 
-          {/* Academic */}
-          <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-            <SectionCard
-              theme={SECTION_THEME.academic}
-              title="Academic Information"
-            >
-              <InfoRow label="Attendance" value="92%" />
-              <InfoRow label="Semester" value="6" />
-              <InfoRow label="CGPA" value="8.75" />
-              <InfoRow label="Credits" value="98" />
-            </SectionCard>
-          </Grid>
-
-          {/* Statistics */}
-          <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-            <SectionCard theme={SECTION_THEME.stats} title="Statistics">
-              <InfoRow label="Subjects" value="8" />
-              <InfoRow label="Assignments" value="14" />
-              <InfoRow label="Projects" value="4" />
-              <InfoRow label="Placement" value="Eligible" />
-            </SectionCard>
-          </Grid>
-
-          {/* Notifications */}
-          <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-            <SectionCard theme={SECTION_THEME.notify} title="Notifications">
-              <Stack spacing={1.5}>
-                <Typography>• Semester Exam Next Month</Typography>
-
-                <Typography>• Internal Marks Published</Typography>
-
-                <Typography>• Placement Registration Open</Typography>
-
-                <Typography>• Library Dues: Nil</Typography>
-              </Stack>
-            </SectionCard>
-          </Grid>
-        </Grid>
+              <Typography>
+                • Contact the administration if any information is incorrect.
+              </Typography>
+            </Stack>
+          </SectionCard>
+        </Masonry>
       </Container>
     </Box>
   );
