@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema } from '../Validation/LoginSchema';
+import { loginSchema } from '../validation/loginSchema.js';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import API from '../api/axios';

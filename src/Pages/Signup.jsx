@@ -24,7 +24,7 @@ import API from '../api/axios.js';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { signupSchema } from '../Validation/signupSchema.js';
+import { signupSchema } from '../validation/signupSchema.js';
 import { useNavigate } from 'react-router-dom';
 
 export default function Signup() {
